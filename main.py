@@ -13,10 +13,11 @@ class Drop:
         self.y = random.randint(-100, -50)
         self.x = random.randint(0, 430)
         self.z = random.randint(0, z)
-        self.len = translate(self.z, 0, z, 10, 25)
+        self.len = translate(self.z, 0, z, 10, 30)
         self.speed = translate(self.z, 0, z, 5, speed)
         self.speed_ = self.speed
         self.gravity = translate(self.z, 0, z, 0, gravity)
+        self.width = translate(self.z, 0, z, 1, 3)
     
     def update(self):
         self.y+=self.speed_
@@ -79,7 +80,7 @@ class App:
 
         ctk.CTkButton(self.root, command=self.restart_sim, text="Restart Simulation").place(x=150, y=510, width=145, height=30)
         for d in self.drops:
-            dr = self.canvas.create_line(d.x, d.y, d.x, d.y+d.len, fill="#122332", width=3)
+            dr = self.canvas.create_line(d.x, d.y, d.x, d.y+d.len, fill="#122332", width=d.width)
         self.drop_ele = list(self.canvas.find_all())
         self.update()
 
@@ -112,7 +113,7 @@ class App:
         for i in range(self.amount):
             self.drops.append(Drop(self.z_index, self.speed, self.gravity))
         for d in self.drops:
-            dr = self.canvas.create_line(d.x, d.y, d.x, d.y+d.len, fill="#122332", width=3)
+            dr = self.canvas.create_line(d.x, d.y, d.x, d.y+d.len, fill="#122332", width=d.width)
         self.drop_ele = list(self.canvas.find_all())
 
 if __name__ == "__main__":
