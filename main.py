@@ -77,7 +77,7 @@ class App:
         self.amount_slider.place(x=10, y=490, width=430, height=10)
         self.amount_slider.set(300)
 
-        ctk.CTkButton(self.root, command=self.start_sim, text="Restart Simulation").place(x=150, y=510, width=145, height=30)
+        ctk.CTkButton(self.root, command=self.restart_sim, text="Restart Simulation").place(x=150, y=510, width=145, height=30)
         for d in self.drops:
             dr = self.canvas.create_line(d.x, d.y, d.x, d.y+d.len, fill="#122332", width=3)
         self.drop_ele = list(self.canvas.find_all())
@@ -102,15 +102,18 @@ class App:
     def update(self):
         for index, d in enumerate(self.drops):
             d.update()
-            # self.canvas.move(self.drop_ele[index], 0, d.speed_)
-            # coords = self.canvas.coords(self.drop_ele[index])
-            # if coords[1] > 280:
-            #     self.canvas.coords(self.drop_ele[index], )
             self.canvas.coords(self.drop_ele[index], d.x, d.y, d.x, d.y+d.len)
         self.root.after(5, self.update)
 
-    def start_sim(self):
-        pass
+    def restart_sim(self):
+        for i in self.drop_ele:
+            self.canvas.delete(i)
+        self.drops = []
+        for i in range(self.amount):
+            self.drops.append(Drop(self.z_index, self.speed, self.gravity))
+        for d in self.drops:
+            dr = self.canvas.create_line(d.x, d.y, d.x, d.y+d.len, fill="#122332", width=3)
+        self.drop_ele = list(self.canvas.find_all())
 
 if __name__ == "__main__":
     root = ctk.CTk()
