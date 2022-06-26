@@ -1,5 +1,32 @@
 import customtkinter as ctk
 import tkinter as tk
+import random
+
+def translate(value, leftMin, leftMax, rightMin, rightMax):
+    leftSpan = leftMax - leftMin
+    rightSpan = rightMax - rightMin
+    valueScaled = float(value - leftMin) / float(leftSpan)
+    return rightMin + (valueScaled * rightSpan)
+
+class Drop:
+    def __init__(self, z, speed, gravity):
+        self.x = random.randint(0, 430)
+        self.y = random.randint(-100, -50)
+        self.z = random.randint(0, z)
+        self.len = translate(self.z, 0, z, 5, 25)
+        print(self.len)
+        self.speed = translate(self.z, 0, z, 10, speed)
+        self.speed_ = self.speed
+        print(self.speed)
+        self.gravity = translate(self.z, 0, z, 0, gravity)
+    
+    def update(self):
+        self.y+=self.speed_
+        self.speed_+=self.gravity
+        if self.y > 280:
+            self.y = 0
+            self.speed_ = self.speed
+
 
 class App:
     def __init__(self, root: ctk.CTk):
@@ -8,13 +35,18 @@ class App:
         self.root.geometry("450x550")
         self.root.resizable(False, False)
 
-        self.canvas = ctk.CTkCanvas(self.root, background="#3A5189")
+        self.canvas = ctk.CTkCanvas(self.root, background="#3A5189", width=430, height=280)
         self.canvas.place(x=10, y=10, width=430, height=280)
 
-        self.z_index = 0
-        self.speed = 0
-        self.gravity = 0
-        self.amount = 0
+        self.z_index = 5
+        self.speed = 25
+        self.gravity = 0.2
+        self.amount = 100
+
+        self.drops = []
+        for i in range(self.amount):
+            self.drops.append(Drop(self.z_index, self.speed, self.gravity))
+        self.drop_ele = []
 
         font = ("Consolas", 15)
 
@@ -28,9 +60,9 @@ class App:
         ctk.CTkLabel(self.root, text="Speed Range", anchor=tk.CENTER, text_font=font).place(x=10, y=350, width=215, height=25)
         self.speed_val = ctk.CTkLabel(self.root, text="0", anchor=tk.CENTER, text_font=font)
         self.speed_val.place(x=225, y=350, width=215, height=25)
-        self.speed_slider = ctk.CTkSlider(self.root, to=50, from_=5, command=self.change_speed, number_of_steps=45)
+        self.speed_slider = ctk.CTkSlider(self.root, to=50, from_=10, command=self.change_speed, number_of_steps=45)
         self.speed_slider.place(x=10, y=385, width=430, height=10)
-        self.speed_slider.set(15)
+        self.speed_slider.set(25)
         
         ctk.CTkLabel(self.root, text="Gravity Range", anchor=tk.CENTER, text_font=font).place(x=10, y=405, width=215, height=25)
         self.gravity_val = ctk.CTkLabel(self.root, text="0", anchor=tk.CENTER, text_font=font)
@@ -44,7 +76,13 @@ class App:
         self.amount_val.place(x=225, y=460, width=215, height=25)
         self.amount_slider = ctk.CTkSlider(self.root, to=750, from_=100, command=self.change_amount, number_of_steps=650)
         self.amount_slider.place(x=10, y=490, width=430, height=10)
-        self.amount_slider.set(500)
+        self.amount_slider.set(100)
+
+        ctk.CTkButton(self.root, command=self.start_sim, text="Restart Simulation").place(x=150, y=510, width=145, height=30)
+        for d in self.drops:
+            dr = self.canvas.create_line(d.x, d.y, d.x, d.y+d.len, fill="#000000", width=3)
+            self.drop_ele.append(dr)
+        self.update()
 
     def change_z_index(self, val):
         self.z_index = int(val)
@@ -61,6 +99,18 @@ class App:
     def change_amount(self, val):
         self.amount = int(val)
         self.amount_val.config(text=f"{int(val)}")
+    
+    def update(self):
+        for index, d in enumerate(self.drops):
+            d.update()
+            self.canvas.move(self.drop_ele[index], 0, d.speed_)
+            print(self.canvas.coords(self.drop_ele[index]))
+            # if d.y > 280:
+                # self.canvas.move(self.drop_ele)
+        self.root.after(10, self.update)
+
+    def start_sim(self):
+        pass
 
 if __name__ == "__main__":
     root = ctk.CTk()
